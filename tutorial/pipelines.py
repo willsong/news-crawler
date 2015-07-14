@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 import MySQLdb
 from tutorial.items import NaverArticleItem, NaverCommentItem
 
@@ -44,6 +45,10 @@ class MySQLPipeline(object):
         if isinstance(item, NaverArticleItem):
             table_name = 'articles'
         elif isinstance(item, NaverCommentItem):
+            # cleansing
+            # ㅋㅋㅋㅋㅋㅋ/ㅎㅎㅎㅎㅎㅎ => ㅋ/ㅎ
+            item['contents'] = re.sub(u'ㅋ{3,}', u'ㅋ', item['contents'], flags = re.M | re.S)
+            item['contents'] = re.sub(u'ㅎ{3,}', u'ㅎ', item['contents'], flags = re.M | re.S)
             table_name = 'comments'
 
         sql = u'insert into ' + table_name + ' ('

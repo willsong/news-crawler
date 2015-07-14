@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys, traceback
 import re
 import time
 import json
@@ -81,7 +82,7 @@ class NaverSpider(scrapy.Spider):
                     query_string = parse_qs(parsed_news_url[4])
 
                     # populate article item
-                    if host_part == 'sports.naver.com':
+                    if host_part == 'sports.news.naver.com':
                         article = NaverArticleItem()
                         article['oid'] = query_string['office_id'][0]
                         article['aid'] = query_string['article_id'][0]
@@ -92,13 +93,18 @@ class NaverSpider(scrapy.Spider):
                         article['oid'] = query_string['oid'][0]
                         article['agency'] = agency
 
+                        # sometimes the news URL is m.news.naver.com
+                        # change it to the normal news.naver.com URL
+                        if host_part == 'm.news.naver.com':
+                            news_url = 'http://news.naver.com/main/read.nhn?mode=LSD&mid=shm&sid1=102&oid=%s&aid=%s' % (article['oid'], article['aid'])
+
                     req = scrapy.Request(news_url, callback = self.parse_news)
                     req.meta['article'] = article
                     yield req
                     cnt += 1
                 except Exception, e:
                     print 'ERROR!!!!!!!!!!!!!  URL :' + news_url
-                    print e
+                    print traceback.print_exc(file = sys.stdout)
                     pass
 
             print 'read %s articles' % cnt
@@ -131,9 +137,9 @@ class NaverSpider(scrapy.Spider):
             date = response.css('div.article_info > span.author > em').xpath('.//text()').extract()[0]
             date = time.strftime('%Y-%m-%d %H:%M:00', self.parse_date(date))
             contents = ' '.join(response.css('div#articeBody').xpath('.//text()').extract()).strip()
-        elif host_part == 'sports.naver.com':
-            title = response.css('div.artical_head > h4').xpath('.//text()').extract()[0]
-            date = response.css('div.info_artical > span.time').xpath('.//text()').extract()[0]
+        elif host_part == 'sports.news.naver.com':
+            title = response.css('div.articlehead > h4').xpath('.//text()').extract()[0]
+            date = response.css('div.info_article > span.time').xpath('.//text()').extract()[0]
             contents = ' '.join(response.css('div.article > div').xpath('.//text()').extract()).strip()
 
         else:
