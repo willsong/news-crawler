@@ -55,3 +55,14 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Vi tmp files
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+# Logs
+tutorial/spiders/logs/
