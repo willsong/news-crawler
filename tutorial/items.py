@@ -21,6 +21,7 @@ class NaverArticleItem(scrapy.Item):
     title = scrapy.Field()
     contents = scrapy.Field()
     url = scrapy.Field()
+    referer = scrapy.Field()
 
 class NaverCommentItem(scrapy.Item):
     date = scrapy.Field()

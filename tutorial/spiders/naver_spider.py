@@ -18,6 +18,7 @@ class NaverSpider(scrapy.Spider):
     s_date = ''
     e_date = ''
     page_cnt = 1
+    dont_filter = False
 
     '''
     Constructor
@@ -98,7 +99,9 @@ class NaverSpider(scrapy.Spider):
                         if host_part == 'm.news.naver.com':
                             news_url = 'http://news.naver.com/main/read.nhn?mode=LSD&mid=shm&sid1=102&oid=%s&aid=%s' % (article['oid'], article['aid'])
 
-                    req = scrapy.Request(news_url, callback = self.parse_news)
+                    req = scrapy.Request(news_url, callback = self.parse_news, dont_filter = self.dont_filter)
+
+                    article['referer'] = response.url
                     req.meta['article'] = article
                     yield req
                     cnt += 1
@@ -113,7 +116,7 @@ class NaverSpider(scrapy.Spider):
             self.page_cnt += 1
 
             next_page_url = self.get_query_url(self.s_date, self.e_date, self.page_cnt)
-            yield scrapy.Request(next_page_url, callback = self.parse)
+            yield scrapy.Request(next_page_url, callback = self.parse, dont_filter = self.dont_filter)
 
     '''
     Retrieve the comment count link from a given news article.
@@ -158,7 +161,7 @@ class NaverSpider(scrapy.Spider):
             'gno' : 'news' + article['oid'] + ',' + article['aid']
         }
 
-        req = scrapy.FormRequest(comment_check_url, formdata = comment_count_data, callback = self.parse_comment_count)
+        req = scrapy.FormRequest(comment_check_url, formdata = comment_count_data, callback = self.parse_comment_count, dont_filter = self.dont_filter)
         req.meta['article'] = article
 
         return req
@@ -189,7 +192,7 @@ class NaverSpider(scrapy.Spider):
                 'serviceId' : 'news'
             }
 
-            req = scrapy.FormRequest(comment_url, formdata = comment_data, callback = self.parse_comments)
+            req = scrapy.FormRequest(comment_url, formdata = comment_data, callback = self.parse_comments, dont_filter = self.dont_filter)
             req.meta['article'] = response.meta['article']
             yield req
 
