@@ -17,9 +17,9 @@ class TutorialPipeline(object):
 class MySQLPipeline(object):
 
     db_host = 'localhost'
-    db_name = 'mers'
-    db_user = 'mers'
-    db_pw = 'Kb459CKS7nQLsHbD'
+    db_name = 'mers_zhwang'
+    db_user = 'mers_zhwang'
+    db_pw = 'Khhd7ALtc8XLhwVK'
 
     def open_spider(self, spider):
         try:
