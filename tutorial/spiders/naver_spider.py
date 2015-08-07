@@ -37,7 +37,7 @@ class NaverSpider(scrapy.Spider):
         #qs = {'query': keyword}
 
         return 'http://news.naver.com/main/search/search.nhn' \
-                + '?query=%C0%CC%B4%D9' \
+                + '?query=%B0%A1' \
                 + '&startDate=' + start_date \
                 + '&endDate=' + end_date \
                 + '&page=' + str(page) \
@@ -60,7 +60,8 @@ class NaverSpider(scrapy.Spider):
                     )
             cur = conn.cursor()
             conn.select_db('mers_zhwang')
-            sql = "select url from articles where date like '%%" + self.c_date + "%%'"
+            #sql = "select url from articles where date like '%%" + self.c_date + "%%'"
+            sql = "select url from articles where date(date) = '" + self.c_date + "'"
             url = cur.execute(sql)
             print '%s records' % url
             urllist = cur.fetchall()
@@ -100,6 +101,7 @@ class NaverSpider(scrapy.Spider):
             return
         '''
         self.parse_day()
+        return
 
         # determine whether to go ahead with parse or not
         result_header = response.css('div.result_header > span.result_num').xpath('.//text()').extract()[0].strip()
