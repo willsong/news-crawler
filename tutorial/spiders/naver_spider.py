@@ -41,6 +41,12 @@ class NaverSpider(scrapy.Spider):
                 + '&startDate=' + start_date \
                 + '&endDate=' + end_date \
                 + '&page=' + str(page) \
+                + '&newscode=032' \
+                + '&newscode=020' \
+                + '&newscode=023' \
+                + '&newscode=025' \
+                + '&newscode=028' \
+                + '&rcnews=exist:032:020:023:025:028:'
 
 
     def geturl_by_day(self):
@@ -69,11 +75,17 @@ class NaverSpider(scrapy.Spider):
         for url in url_lists:
             print '=========================================' + url[0]
             url_code = urllib.urlopen(url[0]).getcode()
-            print '==============: ',url_code
-            if url_code == 404:
+            print '==============: ', url_code
+            st_urlcode = '%d' % url_code
+            #http code: 1xx,2xx,3xx,4xx,5xx, where only 2xx indicates success
+            if st_urlcode.startswith ('4'):
+                self.update_deleted(url[0])
+            elif st_urlcode.startswith('3'):
                self.update_deleted(url[0])
-
-
+            elif st_urlcode.startswith('1'):
+               self.update_deleted(url[0])
+            elif st_urlcode.startswith('5'):
+               self.update_deleted(url[0])
     '''
     Starting point
     Retrieve the news link from the list of search results.
@@ -184,8 +196,6 @@ class NaverSpider(scrapy.Spider):
         article['date'] = date
 
         # this is the hidden 'comment count' api used by naver
-        comment_check_url = 'http://m.news.naver.com/api/comment/count.json'
-
         comment_count_data = {
             'gno' : 'news' + article['oid'] + ',' + article['aid']
         }
