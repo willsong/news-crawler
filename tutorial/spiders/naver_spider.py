@@ -93,9 +93,14 @@ class NaverSpider(scrapy.Spider):
      response - the response object pertaining to the search results page
     '''
     def parse(self, response):
+
+        '''
         if len(self.c_date) >0 :
             self.parse_day()
             return
+        '''
+        self.parse_day()
+
         # determine whether to go ahead with parse or not
         result_header = response.css('div.result_header > span.result_num').xpath('.//text()').extract()[0].strip()
         res = re.match(u'^\((\d+).*?(\d+).*?\)$', result_header, re.M|re.S)
@@ -159,6 +164,7 @@ class NaverSpider(scrapy.Spider):
             next_page_url = self.get_query_url(self.s_date, self.e_date, self.page_cnt)
             yield scrapy.Request(next_page_url, callback = self.parse, dont_filter = self.dont_filter)
 
+
     '''
     Retrieve the comment count link from a given news article.
     Args:
@@ -196,6 +202,8 @@ class NaverSpider(scrapy.Spider):
         article['date'] = date
 
         # this is the hidden 'comment count' api used by naver
+        comment_check_url = 'http://m.news.naver.com/api/comment/count.json'
+
         comment_count_data = {
             'gno' : 'news' + article['oid'] + ',' + article['aid']
         }
