@@ -101,7 +101,6 @@ class NaverSpider(scrapy.Spider):
             return
         '''
         self.parse_day()
-        return
 
         # determine whether to go ahead with parse or not
         result_header = response.css('div.result_header > span.result_num').xpath('.//text()').extract()[0].strip()
