@@ -12,6 +12,15 @@ class TutorialItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
+    
+    
+class MbcArticleItem(scrapy.Item):
+    aid = scrapy.Field()
+    date = scrapy.Field()
+    reporter = scrapy.Field()
+    title = scrapy.Field()
+    contents = scrapy.Field()
+    url = scrapy.Field()
 
 class NaverArticleItem(scrapy.Item):
     aid = scrapy.Field()
