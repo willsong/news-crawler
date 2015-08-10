@@ -54,12 +54,12 @@ class NaverSpider(scrapy.Spider):
         try:
             conn = MySQLdb.connect(
                     host = 'localhost',
-                    user = 'mers_zhwang',
-                    passwd = 'Khhd7ALtc8XLhwVK',
+                    user = 'mers',
+                    passwd = 'Kb459CKS7nQLsHbD',
                     charset = 'utf8'
                     )
             cur = conn.cursor()
-            conn.select_db('mers_zhwang')
+            conn.select_db('mers')
             #sql = "select url from articles where date like '%%" + self.c_date + "%%'"
             sql = "select url from articles where date(date) = '" + self.c_date + "'"
             url = cur.execute(sql)
@@ -301,12 +301,12 @@ class NaverSpider(scrapy.Spider):
         try:
             conn = MySQLdb.connect(
                     host = 'localhost',
-                    user = 'mers_zhwang',
-                    passwd = 'Khhd7ALtc8XLhwVK',
+                    user = 'mers',
+                    passwd = 'Kb459CKS7nQLsHbD',
                     charset = 'utf8'
                     )
             cur = conn.cursor()
-            conn.select_db('mers_zhwang')
+            conn.select_db('mers')
 
             sql = "update articles set deleted = 'Y' where url = '%s'" % (url)
             cur.execute(sql)
@@ -325,12 +325,12 @@ class NaverSpider(scrapy.Spider):
         try:
             conn = MySQLdb.connect(
                     host = 'localhost',
-                    user = 'mers_zhwang',
-                    passwd = 'Khhd7ALtc8XLhwVK',
+                    user = 'mers',
+                    passwd = 'Kb459CKS7nQLsHbD',
                     charset = 'utf8'
                     )
             cur = conn.cursor()
-            conn.select_db('mers_zhwang')
+            conn.select_db('mers')
 
             sql = 'update counts set v = v + %s where k = "%s"' % (cnt, tpe)
             cur.execute(sql)
@@ -348,12 +348,12 @@ class NaverSpider(scrapy.Spider):
         try:
             conn = MySQLdb.connect(
                     host = 'localhost',
-                    user = 'mers_zhwang',
-                    passwd = 'Khhd7ALtc8XLhwVK',
+                    user = 'mers',
+                    passwd = 'Kb459CKS7nQLsHbD',
                     charset = 'utf8'
                     )
             cur = conn.cursor()
-            conn.select_db('mers_zhwang')
+            conn.select_db('mers')
 
             sql = 'insert into urls set url = "%s"' % url
             cur.execute(sql)
