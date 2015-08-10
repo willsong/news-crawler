@@ -23,9 +23,10 @@ class NaverSpider(scrapy.Spider):
     '''
     Constructor
     '''
-    def __init__(self, start_date = '2015-05-01', end_date = '2015-05-10', *args, **kwargs):
+    def __init__(self, start_date = '', end_date = '',check_date = '', *args, **kwargs):
         self.s_date = start_date
         self.e_date = end_date
+        self.c_date = check_date
         self.start_urls = [self.get_query_url(self.s_date, self.e_date, self.page_cnt)]
         super(NaverSpider, self).__init__(*args, **kwargs)
 
@@ -36,7 +37,7 @@ class NaverSpider(scrapy.Spider):
         #qs = {'query': keyword}
 
         return 'http://news.naver.com/main/search/search.nhn' \
-                + '?query=%B8%DE%B8%A3%BD%BA' \
+                + '?query=%B0%A1' \
                 + '&startDate=' + start_date \
                 + '&endDate=' + end_date \
                 + '&page=' + str(page) \
@@ -47,13 +48,59 @@ class NaverSpider(scrapy.Spider):
                 + '&newscode=028' \
                 + '&rcnews=exist:032:020:023:025:028:'
 
+
+    def geturl_by_day(self):
+
+        try:
+            conn = MySQLdb.connect(
+                    host = 'localhost',
+                    user = 'mers',
+                    passwd = 'Kb459CKS7nQLsHbD',
+                    charset = 'utf8'
+                    )
+            cur = conn.cursor()
+            conn.select_db('mers')
+            #sql = "select url from articles where date like '%%" + self.c_date + "%%'"
+            sql = "select url from articles where date(date) = '" + self.c_date + "'"
+            url = cur.execute(sql)
+            print '%s records' % url
+            urllist = cur.fetchall()
+            cur.close()
+            conn.close()
+            return urllist
+        except MySQLdb.Error, e:
+            print 'MySQL error %d: %s' % (e.args[0], e.args[1])
+
+    def parse_day(self):
+        url_lists = self.geturl_by_day()
+        for url in url_lists:
+            print '=========================================' + url[0]
+            url_code = urllib.urlopen(url[0]).getcode()
+            print '==============: ', url_code
+            st_urlcode = '%d' % url_code
+            #http code: 1xx,2xx,3xx,4xx,5xx, where only 2xx indicates success
+            if st_urlcode.startswith ('4'):
+                self.update_deleted(url[0])
+            elif st_urlcode.startswith('3'):
+               self.update_deleted(url[0])
+            elif st_urlcode.startswith('1'):
+               self.update_deleted(url[0])
+            elif st_urlcode.startswith('5'):
+               self.update_deleted(url[0])
     '''
-    Starting point.
+    Starting point
     Retrieve the news link from the list of search results.
     Args:
      response - the response object pertaining to the search results page
     '''
     def parse(self, response):
+
+        '''
+        if len(self.c_date) >0 :
+            self.parse_day()
+            return
+        '''
+        self.parse_day()
 
         # determine whether to go ahead with parse or not
         result_header = response.css('div.result_header > span.result_num').xpath('.//text()').extract()[0].strip()
@@ -117,6 +164,7 @@ class NaverSpider(scrapy.Spider):
 
             next_page_url = self.get_query_url(self.s_date, self.e_date, self.page_cnt)
             yield scrapy.Request(next_page_url, callback = self.parse, dont_filter = self.dont_filter)
+
 
     '''
     Retrieve the comment count link from a given news article.
@@ -246,8 +294,33 @@ class NaverSpider(scrapy.Spider):
         return new_time
 
     '''
+    Debug method - update deleted column
+    '''
+    def update_deleted(self, url):
+
+        try:
+            conn = MySQLdb.connect(
+                    host = 'localhost',
+                    user = 'mers',
+                    passwd = 'Kb459CKS7nQLsHbD',
+                    charset = 'utf8'
+                    )
+            cur = conn.cursor()
+            conn.select_db('mers')
+
+            sql = "update articles set deleted = 'Y' where url = '%s'" % (url)
+            cur.execute(sql)
+            conn.commit()
+            cur.close()
+            conn.close()
+        except MySQLdb.Error, e:
+            print 'MySQL error %d: %s' % (e.args[0], e.args[1])
+
+
+    '''
     Debug method - update the given count
     '''
+
     def update_count(self, tpe, cnt):
         try:
             conn = MySQLdb.connect(
@@ -270,6 +343,7 @@ class NaverSpider(scrapy.Spider):
     '''
     Debug method - insert the given url
     '''
+
     def update_url(self, url):
         try:
             conn = MySQLdb.connect(
