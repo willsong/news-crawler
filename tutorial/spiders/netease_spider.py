@@ -73,7 +73,7 @@ class NeteaseSpider(scrapy.Spider):
             count = 0
             for items in hjson:
                 count +=1
-                if count>10: break
+                #if count>10: break
                 if count<9: continue
                 #print items
                 for (k, v) in items.items():
